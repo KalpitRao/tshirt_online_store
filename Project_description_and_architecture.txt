@@ -1,0 +1,8 @@
+1)Getting started with the project.
+  Section 1-Intro(Done)
+  Course Goals-Backend with django.
+	      -Rest API
+	      -Customisation of django
+	      -Frontend with react
+  Creating a project structure from client requirements.
+  	I Want to sell t-shirts online.I got t-shirts for winter and summer.
