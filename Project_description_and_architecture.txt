@@ -6,3 +6,5 @@
 	      -Frontend with react
   Creating a project structure from client requirements.
   	I Want to sell t-shirts online.I got t-shirts for winter and summer.(There should be seperate login for admin and customer)
+  How to handle such projects.
+  Django and Django rest framework.
