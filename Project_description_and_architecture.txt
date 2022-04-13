@@ -56,3 +56,69 @@
 
 								  5-in urls.py copy==   path('api-auth/', include('rest_framework.urls'))
 	->Storing our images in Django.
+								  1-First we will create a media folder,then in settings.py
+								    MEDIA_URL = '/media/'
+								    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+								  2-Then we have to mention it in urls as well.
+								    from django.conf.urls.static import static
+								    from django.conf import settings
+
+								    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)    (Thats how we store media files,rest all will be handled by django itself.)
+
+
+
+	->Setting Django API structure.
+								  1-Create an app called api.(python manage.py startapp api)Now inside the api we will create order,products,categories,payment and users.
+									Create all apps i.e order,payment,product,category,user inside api app.
+									django-admin startapp order
+									django-admin startapp product
+									django-admin startapp payment
+									django-admin startapp category
+									django-admin startapp user
+	->Handling api root route in django.
+								1-In ecom settings.py mention the app name api in installed app.
+								2-In ecom urls.py create path = path('api/', include('api.urls'))
+								3-Create urls.py file in api app 
+									
+									from django.urls import path,include
+									from rest_framework.authtoken import views
+									from .views import home
+
+									urlpatterns = [
+   											 path('',home, name='api.home')
+										]
+								4-In views.py created a simple view.
+									from django.http import JsonResponse
+
+									# Create your views here.
+									def home(request):
+    									return JsonResponse({'info':'Django React','name':'Kalpit'})
+
+
+4)Setting up categories in admin.
+	->Section 4 Intro.
+	->Setting up category model and admin.
+								1-Create model
+								2-Register in admin
+								3-serializers.py file to serialize data in json
+								4-views to get all category
+								5-setup url
+									
+								6-In category app create serializers.py and urls.py file.
+								7-Now we will work with the models.
+										from django.db import models
+
+										class Category(models.Model):
+   											name = models.CharField(max_length=50)
+    											description = models.CharField(max_length=250)
+    											created_at = models.DateTimeField(auto_now_add=True)
+    											updated_at = models.DateTimeField(auto_now=True)
+
+								8-Now in admin we have to register the category in admin pannel.
+									from django.contrib import admin
+									from .models import Category
+
+									admin.site.register(Category)
+
+
+									
