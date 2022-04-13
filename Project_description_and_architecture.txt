@@ -1,10 +1,58 @@
 1)Getting started with the project.
-  Section 1-Intro(Done)
-  Course Goals-Backend with django.
+       ->Section 1-Intro(Done)
+       ->Course Goals-Backend with django.
 	      -Rest API
 	      -Customisation of django
 	      -Frontend with react
-  Creating a project structure from client requirements.
-  	I Want to sell t-shirts online.I got t-shirts for winter and summer.(There should be seperate login for admin and customer)
-  How to handle such projects.
-  Django and Django rest framework.
+       ->Creating a project structure from client requirements.
+  	 I Want to sell t-shirts online.I got t-shirts for winter and summer.(There should be seperate login for admin and customer)
+       ->How to handle such projects.
+       ->Django and Django rest framework.
+
+
+2)Installation of backend.
+	->Section 2 Intro.
+	->Python installation and virtual environment.x
+	->Python installation and virtual env in windows.
+	->Learn to manage virtual env.x
+	->Django installation.                                     pip install django,django-admin startproject ecom,python manage.py runserver
+	->Django installation in windows.
+	->Django tour.
+	->Django admin and migration.                              python manage.py makemigrations,python manage.py migrate,python manage.py createsuperuser.
+
+
+3)Getting Structure Ready.
+	->Section 3 Intro.
+	->Where are code files.
+	->Cross origin request in django.     			  Its actually needed when we send multiple request from different resources such as postman and react.
+								  1-pip install django-cors-headers.
+								  2-In settings.py there will be couple of changes for cors-headers.
+								  3-INSTALLED_APPS = [,'corsheaders']
+
+								  MIDDLEWARE = ["corsheaders.middleware.CorsMiddleware","django.middleware.common.CommonMiddleware",]
+									
+								  STATIC_URL = '/static/'
+
+								  CORS_ORIGIN_ALLOW_ALL = True
+
+								  ALLOWED_HOSTS = ['*']
+
+	->Django REST Framework installation.			  1-pip install djangorestframework.
+								  2-INSTALLED_APPS = ['rest_framework','rest_framework.authtoken']----authtoken for making custom signup.We dont want to use django sign up.	 
+								  3-REST_FRAMEWORK = {# Use Django's standard `django.contrib.auth` permissions,
+										    # or allow read-only access for unauthenticated users.
+										    'DEFAULT_PERMISSION_CLASSES': [
+     										    	'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+   										    	]
+										   } 
+
+								  4-then go to the api guide-authentication-copy setting the authentication schema in REST_FRAMEWORK in settings.py.
+									'DEFAULT_AUTHENTICATION_CLASSES': [
+        												'rest_framework.authentication.BasicAuthentication',
+        												'rest_framework.authentication.SessionAuthentication',
+													'rest_framework.authentication.TokenAuthentication'
+    													],
+
+
+								  5-in urls.py copy==   path('api-auth/', include('rest_framework.urls'))
+	->Storing our images in Django.
