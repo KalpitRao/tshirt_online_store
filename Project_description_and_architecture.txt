@@ -55,6 +55,7 @@
 
 
 								  5-in urls.py copy==   path('api-auth/', include('rest_framework.urls'))
+	
 	->Storing our images in Django.
 								  1-First we will create a media folder,then in settings.py
 								    MEDIA_URL = '/media/'
@@ -119,6 +120,149 @@
 									from .models import Category
 
 									admin.site.register(Category)
+	
 
+	->Serialize the data from db in django.
+								serializers.py->
+									from rest_framework import serializers
+									from .models import Category
+
+									class CategorySerializer(serializers.Serializer):
+    									class Meta:
+        									model = Category
+        									fields = ['name','description']
+	
+
+	->Category API routing and views in django.
+								In this we are going to work with viewsets and routers from django rest framework.
+								In category/views.py
+								      ->from rest_framework import viewsets
+									from .serializers import CategorySerializer
+									from .models import Category
+									# Create your views here.
+
+									class CategoryViewSet(viewsets.ModelViewSet):
+    										queryset = Category.objects.all().order_by('name')
+    										serializer_class = CategorySerializer
+								In api/urls.py
+									->from django.urls import path,include
+									from rest_framework.authtoken import views
+									from .views import home
+
+									urlpatterns = [
+    										path('',home, name='api.home'),
+    										path('category/', include('api.category.urls'))
+									]	
+
+
+								In category/urls.py
+									->from rest_framework import routers
+									from django.urls import path,include
+									from .import views
+
+
+									router = routers.DefaultRouter()
+									router.register(r'', views.CategoryViewSet)
+
+									urlpatterns = [
+   	 									path('', include(router.urls))
+    
+										]
+	->Testing with postman for category in django.
+
+								Now in serializers.py
+									from rest_framework import serializers
+									from .models import Category
+
+									class CategorySerializer(serializers.HyperlinkedModelSerializer):       ------------->we use HyperlinkedModelSerializer and then test in postman get request localhost://8000/api/category
+    										class Meta:
+        										model = Category
+        										fields = ['name','description']
+
+
+
+5)Setting up products in admin.
+	->Section 5 intro 					->In this section every product will needs to be registered in the categories.
+								->In the products we will be adding the images.
+	
+
+	->Add model for product in django.			1-Create model
+								2-Register in admin
+								3-serializers.py file to serialize data in json
+								4-views to get all category
+								5-setup url
+
+								1-Creating Model-
+									from distutils.command.upload import upload
+									from django.db import models
+									from api.category.models import Category
+									# Create your models here.
+
+									class Product(models.Model):
+    										name = models.CharField(max_length=50)
+    										description = models.CharField(max_length=250)
+    										price = models.CharField(max_length=50)
+    										stock = models.CharField(max_length=50)
+    										is_active = models.BooleanField(default=True, blank=True)
+    										image = models.ImageField(upload_to='images/',blank=True, null=True)
+    										category = models.ForeignKey(Category, on_delete=models.SET_NULL, blank=true, null=True)
+    										created_at = models.DateTimeField(auto_now_add=True)
+    										updated_at = models.DateTimeField(auto_now=True)
+
+    										def __str__(self):
+        										return self.name
+								2-Register in admin-
+									from django.contrib import admin
+									from .models import Product
+
+									# Register your models here.
+
+									admin.site.register(Product)                     ------------->>>>>>>>>>>>>>>>>>>>>>>makemigrations,migrate
+
+
+									Now add products in admin pannel
+	
+	
+	->Image serialization and product views in django	3-serializers.py file to serialize data in json
+
+									from itertools import product
+									from rest_framework import serializers
+
+									from.models import Product
+
+									class ProductSerializer(serializers.HyperlinkedModelSerializer):
+    										image = serializers.ImageField(max_length=None,allow_empty_files=False, allow_null=True, required=False)
+   		 								class Meta:
+        										model = Product
+        										fields = ('id','name','description','price','image','category')
 
 									
+								4-views to get all category
+									from django.shortcuts import render
+									from rest_framework import viewsets
+									from .serializers import ProductSerializer
+									from.models import Product
+
+									# Create your views here.
+
+									class ProductViewSet(viewsets.ModelViewset):
+    										queryset = Product.objects.all().order_by('id')
+    										serializer_class = ProductSerializer
+
+	->Setting Up URL for products in django.
+								1.In api.urls.py->     path('product/',include('api.product.urls'))
+								2.In product.urls.py   
+										from rest_framework import routers
+										from django.urls import path,include
+										from .import views
+
+
+										router = routers.DefaultRouter()
+										router.register(r'', views.ProductViewSet)
+
+										urlpatterns = [
+    											path('', include(router.urls))  
+										]
+
+6)Setting Up custom user in admin.
+	->Section 6 Intro.					you will be modifying what input are been taken up while signing up the user. 
