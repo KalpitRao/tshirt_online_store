@@ -266,3 +266,87 @@
 
 6)Setting Up custom user in admin.
 	->Section 6 Intro.					you will be modifying what input are been taken up while signing up the user. 
+
+	->Create User model in admin in django.			1-Create model based on Existing model.
+								2-Serialize,View and urls
+								3-Register the app in admin
+								4-Debug it
+								
+
+								
+								1-Create model based on Existing model:->
+									from django.db import models
+									from django.contrib.auth.models import AbstractUser
+
+									class CustomUser(AbstractUser):
+    										name = models.CharField(max_length=50,default='Anonymous')
+    										email = models.EmailField(max_length=254, unique=True)
+
+   									 	username = None
+
+    										USERNAME_FIELD = 'email'
+    										REQUIRED_FIELDS = []
+
+    										phone = models.CharField(max_length=20, blank=True, null=True)
+    										gender = models.CharField(max_length=10, blank=True, null=True)
+
+    										session_token = models.CharField(max_length=10,default=0)
+
+    										created_at = models.DateTimeField(auto_now_add=True)
+    										updated_at = models.DateTimeField(auto_now=True)
+
+	->Lets get some errors intentionally in django.(Revision needed)
+
+	->Custom user Serialization in django.(Revision needed)	
+								2-user/serializers.py->
+									from rest_framework import serializers
+									from django.contrib.auth.hashers import make_password
+									from rest_framework.decorators import authication_classes, permission_classes
+
+									from .models import CustomUser
+
+									class UserSerializer(serializers.HyperlinkedModelSerializer):
+
+    										def create(self, validated_data):
+        										password = validated_data.pop('password', None)
+        										instance = self.Meta.model(**validated_data)
+
+        										if password is not None:
+            											instance.set_password(password)
+        										instance.save()
+        										return instance
+
+    										def update(self, instance, validated_data):
+        										for attr, value in validated_data.items():
+            											if attr =='password':
+                											instance.set_password(value)
+           	 										else:
+                											setattr(instance,attr,value)
+        											instance.save()
+        											return instance
+
+
+
+    									class Meta:
+										model= CustomUser
+        									extra_kwargs = {'password':{'write_only':True}}
+        									fields= ('name','email','password','phone','gender','is_active','is_staff','is_superuser')
+        						
+	
+	->Generating the token in django
+								We are gonna generate a token based on custom logic.And as long as the token is active in the database for that user we are gonna consider user is logged in.
+								And user hits the route sign out that means we are gonna delete the token from the backend that means user is logged out.
+								in users/views.py-
+									from django.shortcuts import render
+									import random
+									# Create your views here.
+
+									def generate_session_token(length=10):
+    										return ''.join(random.SystemRandom().choice([chr(i) for i in range(97,123)] + [str(i) for i in range(10)])for _ in range(length)) 
+									#we are using this to generate random token run this command in python shell.first import random.
+	->Custom user signin in django.
+								We are using regexr.com
+
+		
+
+	
