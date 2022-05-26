@@ -17,7 +17,6 @@
 	->Learn to manage virtual env.x
 	->Django installation.                                     pip install django,django-admin startproject ecom,python manage.py runserver
 	->Django installation in windows.
-	->Django tour.
 	->Django admin and migration.                              python manage.py makemigrations,python manage.py migrate,python manage.py createsuperuser.
 
 
@@ -439,5 +438,60 @@
 
 
 		
+	->Fixing bugs and urls for user in django.			in user/urls.py
+									from rest_framework import routers
+									from django.urls import path,include
+									from .import views
 
+
+									router = routers.DefaultRouter()
+									router.register(r'', views.UserViewSet)
+
+									urlpatterns = [
+    										path('login/', views.signin, name='signin'),
+    										path('logout/<int:id>/', views.signout, name='signout'),
+    										path('', include(router.urls))
+									]	
+
+									delete the database
+									runserver,makemigrations,migrate
+									Uncomment AUTH_USER_MODEL = "user.CustomUser" in ecom/settings.py
+									Add the api.user in installed apps.
 	
+
+	->Classic super admin issue in django.				in user/migrations
+									create a superuser ----python manage.py createsuperuser
+									Now in api/migrations create a file name 0001_initial.py
+									from django.db import migrations
+									from api.user.models import CustomUser
+
+									class Migration(migrations.Migration):
+    										def seed_data(apps, schema_editor):
+        										user = CustomUser(name="kalpit",
+                          										email = "kalpitraorane46@gmail.com",
+                          										is_staff = True,
+                          										is_superuser = True,
+                          										phone = "8928439573",
+                          										gender = "Male"
+                          										)
+        										user.set_password("12345")
+        										user.save()
+
+    										dependencies = [
+        
+    										]
+
+    										operations = [
+        										migrations.RunPython(seed_data),
+    										]
+
+	->Detailed Testing with postman for user django.
+									Open postman->POST request-http://127.0.0.1:8000/api/user/
+									Go to headers->key=content-type,value=application/json
+									In Body->{
+    											"email": "three@kalpit.com",
+    											"password": "12345"
+    										}
+
+
+									
