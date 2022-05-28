@@ -486,6 +486,7 @@
     										]
 
 	->Detailed Testing with postman for user django.
+	(Revision plus testing needed again)
 									Open postman->POST request-http://127.0.0.1:8000/api/user/
 									Go to headers->key=content-type,value=application/json
 									In Body->{
@@ -493,5 +494,48 @@
     											"password": "12345"
     										}
 
+										
 
+										{
+   											"email": "threekalpit@gmail.com",
+   											"password" : 12345,
+  	 										"is_superuser": "True" 
+										}
+
+
+
+7)In this section we r gonna be having the products in the order.So user will be placing the order and we want some place where user or the admin can see all the order information.
+  We are gonna be modifying on the flow in creating models views and urls.
+
+	->Creating models for orders in django-The product as well as user we need to import them.Everytime we place an order there are some products which you want and there are some user who is requesting them.
+ 									
+									in order/models.py
+									from django.db import models
+									from api.user.models import CustomUser
+									from api.product.models import Product
+
+									# Create your models here.
+
+									class Order(models.Model):
+    										user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+
+    										product_names = models.CharField(max_length=500)
+    										total_products = models.CharField(max_length=50, default= 0)
+    										transaction_id = models.CharField(max_length=150, default=0)
+    										total_amount = models.CharField(max_length=50, default=0)
+
+    										created_at = models.DateTimeField(auto_now_add=True)
+    										updated_at = models.DateTimeField(auto_now=True) 
+	->Add serialization for orders
+
+									in order/serializers.py
+									from rest_framework import serializers
+
+									from .models import Order
+
+									class OrderSerializer(serializers.HyperlinkedModelsSerializer):
+    										class Meta:
+        										model = Order
+        										fields  = ('user')
+        										#TODO:add product and quantity
 									
