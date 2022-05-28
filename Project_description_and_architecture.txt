@@ -507,7 +507,7 @@
 7)In this section we r gonna be having the products in the order.So user will be placing the order and we want some place where user or the admin can see all the order information.
   We are gonna be modifying on the flow in creating models views and urls.
 
-	->Creating models for orders in django-The product as well as user we need to import them.Everytime we place an order there are some products which you want and there are some user who is requesting them.
+	->Creating models for orders in django-				The product as well as user we need to import them.Everytime we place an order there are some products which you want and there are some user who is requesting them.
  									
 									in order/models.py
 									from django.db import models
@@ -539,3 +539,27 @@
         										fields  = ('user')
         										#TODO:add product and quantity
 									
+
+	->Is user authentication in django.-				Work in the views.First is to validate the user wether he is signed in or not because we want to allow the purchase for the signed in user.
+	 	 							Also after when the user is authenticated and he has somethings in the cart while making the payment after the payment he is going to get redirected to the url add order.
+									In order/views.py
+
+									from django.shortcuts import render
+									from rest_framework import viewsets
+									from django.http import JsonResponse
+									from django.contrib.auth import get_user_model
+									from .serializers import OrderSerializer
+									from .models import Order
+									from django.views.decorators.csrf import csrf_exempt
+
+									# Create your views here.
+
+									def validate_user_session(id, token):
+    										UserModel = get_user_model()
+    										try:
+        										user = UserModel.objects.get(pk=id)
+        										if user.session_token ==token:
+            											return True
+        										return False
+    										except UserModel.DoesNotExist:
+        										return False
