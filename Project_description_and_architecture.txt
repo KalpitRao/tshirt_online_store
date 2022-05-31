@@ -533,7 +533,7 @@
 
 									from .models import Order
 
-									class OrderSerializer(serializers.HyperlinkedModelsSerializer):
+									class OrderSerializer(serializers.HyperlinkedModelSerializer):
     										class Meta:
         										model = Order
         										fields  = ('user')
@@ -563,3 +563,147 @@
         										return False
     										except UserModel.DoesNotExist:
         										return False
+
+	->Adding order in admin in django.				
+									Next thing is that when user hits a certain route we need to execute a method which is responsible for collecting all the data and pushing the data in the admin.
+									in order/views.py
+									
+									@csrf_exempt
+									def add(request, id, token):
+    										if not validate_user_session(id, token):
+        										return JsonResponse({'error':'Please re-login','code':'1'})
+
+    										if request.method == "POST":
+        										user_id = id
+        										transaction_id = request.POST['transaction_id']
+        										amount = request.POST['amount']
+        										products = request.POST['products']
+
+        										total_pro = len(products.split(','[:-1]))
+
+        										UserModel = get_user_model()
+
+        										try:
+            											user = UserModel.objects.get(pk=user_id)
+        										except UserModel.DoesNotExist:
+            											return JsonResponse({'error':'User Does not exist'})
+
+        										ordr =Order(user=user, product_names=products, total_products=total_pro, transaction_id=transaction_id, total_amount=amount)
+        										ordr.save()
+        										return JsonResponse({'success': True, 'error':False,'msg':'Order placed successfully'})
+
+
+									class OrderViewSet(viewsets.ModelViewSet):
+    										queryset = Order.objects.all().order_by('name')
+    										serializer_class = OrderSerializer
+
+
+	->URL for Order and auth token in django.			in ecom/urls.py
+									from django.urls import path,include
+									from rest_framework.authtoken import views
+									from .views import home
+
+									urlpatterns = [
+    										path('',home, name='api.home'),
+    										path('category/', include('api.category.urls')),
+    										path('product/',include('api.product.urls')),
+    										path('user/',include('api.user.urls')),
+    										path('order/',include('api.order.urls')),
+    										path('api-token-auth/', views.obtain_auth_token, name='api_token_auth'),
+										]
+
+									now in order/urls.py
+									from rest_framework import routers
+									from django.urls import path,include
+									from .import views
+
+
+									router = routers.DefaultRouter()
+									router.register(r'', views.OrderViewSet)
+
+									urlpatterns = [
+										path('add/<str:id>/<str:token>/',views.add, name = 'order.add'),
+    										path('', include(router.urls)) 
+									]
+									Now add the app in settings.py->api.order
+8)PAyment Gateway-USing Brain Tree
+	->Understanding the payment Gateway(Brain tree)-Through which you can accept Paypal and cards. Go to developers.braintree.com->signup on it
+	->Generate brain tree token for user in django. 		1)pip install braintree.
+									2)from braintree signup generate new API KEy
+									3)in payments/views.py- from django.shortcuts import render
+												from django.http import HttpResponse, JsonResponse
+												from django.contrib.auth.decorators import login_required
+												from django.contrib.auth import get_user_model
+												from django.views.decorators.csrf import csrf_exempt
+
+												import braintree
+												# Create your views here.
+												gateway = braintree.BraintreeGateway(
+    													braintree.Configuration(
+        													braintree.Environment.Sandbox,
+        													merchant_id="use_your_merchant_id",
+        													public_key="use_your_public_key",
+       	 													private_key="use_your_private_key"
+    													)
+												)
+
+									4)Copy the merchant id,public key,private key from braintree
+									5)Now we need a method to check whether the user is signed in or not.
+									In Payment/views.py
+									def validate_user_session(id, token):
+    									UserModel = get_user_model()
+
+    									try:
+        									user =  UserModel.objects.get(pk=id)
+        									if user.session_token == token:
+            										return True
+        									return False  
+    									except UserModel.DoesNotExist:
+        									return False
+
+
+									@csrf_exempt
+									def generate_token(request, id, token):
+    										if not validate_user_session(id, token):
+        										return JsonResponse({'error':'Invalid session,Please login again'})
+
+    										return JsonResponse({'client':gateway.client_token.generate(), 'success': True})
+
+
+
+	->Process the payment from backend in django			in payment/views.py
+									@csrf_exempt
+									def process_payment(request, id,token):
+    										if not validated_user_session(id, token):
+        										return JsonResponse({'error':'Invalid session,Please login again'})
+
+    										nonce_from_the_client = request.POST["paymentMethodNonce"]
+    										amount_from_the_client = request.POST["amount"]
+
+    										result = gateway.transaction.sale({
+        										"amount": amount_from_the_client,
+        										"payment_method_nonce": nonce_from_the_client,
+        										"options": {
+            											"submit_for_settlement": True
+        										}
+    										})
+s
+    										if result.is_success:
+        										return JsonResponse({
+            											"success":result.is_success,
+            											"transaction": {'id':result.transaction.id,'amount':result.transaction.amount}})
+
+    										else:
+        										return JsonResponse({'error':True,'success':False})
+    
+
+	->Setup payment urls and debug in django.			in payment/urls.py
+									from django.urls import path, include
+									from . import views
+
+									urlpatterns = [
+    										path('gettoken/<str:id>/<str:token>/',views.generate_token, name="token.generate"),
+    										path('process/<str:id>/<str:token>/',views.process_payment, name="payment.process"),
+									]
+
+	->Giving django some test  					Tested some on admin added the products and tested on postman.
