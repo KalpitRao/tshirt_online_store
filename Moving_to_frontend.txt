@@ -1,0 +1,52 @@
+								React App for frontend->
+-Action Planning for handling frontend:
+			1)Much easier,less code
+			2)Authentication is handled by django
+			3)Admin pannel is handled by django.
+			4)We just have to worry about the user signup,user purchase,as well as user cart.
+			5)helpers will handle API calls
+			6)User,Core and auth
+
+
+-Config for backend connection and structure
+			installation- npm install react-router-dom braintree-web-drop-in-react query-string  (connect it to the braintree,enabling the paypal)
+			create a .env file in projfrontend
+				-REACT_APP_BACKEND=http://localhost:8000/api/
+			create a backend.js in src folder(Since we dont want to touch our environment variable again and again )
+				-export const API = process.env.REACT_APP_BACKEND;
+			create auth,user,core folder in src 
+					auth-
+					create helper folder in auth folder and inside that create 
+					
+					index.js(Majority of the functionality of authentication will go inside index.js),
+					PrivateRoutes.js files(In this we will be adding config from react router so that all the routes we want to be protected means no body withouthout authentication should be able to access them.)
+			
+					user-
+					create a helper folder in auth and create userapicalls.js file in that folder
+
+					userapicalls.js(All the calls related to the user information like purchase will go there not the authentication as sign up sign in )
+
+					Create profile.js inside user folder not in helper folder
+					Create signup.js 
+					Create signin.js
+					Create UserDashboard.js 
+
+					Core-
+					Create helper folder-In helper Folder-
+								carthelper.js
+								coreapicalls.js
+								imagehelper.js
+								orderhelper.js
+								paymenthelper.js
+
+					In Core folder
+							Create Base.js
+							Create Card.js
+							Create Cart.js
+							Create Home.js
+							Create Menu.js
+							Create PaymentB.js
+
+-Application is running now
+			Copy bootstrap cdn html just above title in public/index.html
+			

@@ -37,9 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders',
+    'corsheaders',                  #Its needed when we send multiple request from different resources such as postman and react.
     'rest_framework',
-    'rest_framework.authtoken',
+    'rest_framework.authtoken',    #authtoken for making custom signup.We dont want to use default django sign up.
     'api',
     'api.category',
     'api.product',
